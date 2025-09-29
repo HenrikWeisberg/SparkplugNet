@@ -131,7 +131,7 @@ public sealed class SparkplugNode : SparkplugNodeBase<Metric>
                     throw new InvalidOperationException($"Topic {topic} is invalid!");
                 }
 
-                await this.FireDeviceCommandReceived(topic.DeviceIdentifier, filteredMetrics);
+                await this.FireDeviceCommandReceived(topic.DeviceIdentifier != null ? topic.DeviceIdentifier : string.Empty, filteredMetrics);
                 break;
 
             case SparkplugMessageType.NodeCommand:

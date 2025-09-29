@@ -18,11 +18,11 @@ public sealed record class StateMessage
     /// Gets or sets a value indicating whether the state is online or offline.
     /// </summary>
     [JsonPropertyName("online")]
-    public bool Online { get; init; }
+    public bool Online { get; set; }
 
     /// <summary>
     /// Gets or sets the timestamp.
     /// </summary>
     [JsonPropertyName("timestamp")]
-    public long Timestamp { get; init; } = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+    public long Timestamp { get; set; } = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
 }

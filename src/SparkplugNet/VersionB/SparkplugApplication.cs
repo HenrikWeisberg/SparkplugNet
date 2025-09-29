@@ -170,7 +170,7 @@ public sealed class SparkplugApplication : SparkplugApplicationBase<Metric>
                     throw new InvalidOperationException($"The device identifier is invalid!");
                 }
 
-                await this.FireDeviceBirthReceived(topic.GroupIdentifier, topic.EdgeNodeIdentifier, topic.DeviceIdentifier,
+                await this.FireDeviceBirthReceived(topic.GroupIdentifier, topic.EdgeNodeIdentifier, topic.DeviceIdentifier != null ? topic.DeviceIdentifier : string.Empty,
                     this.ProcessPayload(topic, filteredMetrics, SparkplugMetricStatus.Online));
                 break;
             case SparkplugMessageType.NodeData:
@@ -184,7 +184,7 @@ public sealed class SparkplugApplication : SparkplugApplicationBase<Metric>
                 }
 
                 var deviceDataMetrics = this.ProcessPayload(topic, filteredMetrics, SparkplugMetricStatus.Online);
-                await this.FireDeviceDataReceived(topic.GroupIdentifier, topic.EdgeNodeIdentifier, topic.DeviceIdentifier, deviceDataMetrics);
+                await this.FireDeviceDataReceived(topic.GroupIdentifier, topic.EdgeNodeIdentifier, topic.DeviceIdentifier != null ? topic.DeviceIdentifier : string.Empty, deviceDataMetrics);
                 break;
             case SparkplugMessageType.NodeDeath:
                 this.ProcessPayload(topic, filteredMetrics, SparkplugMetricStatus.Offline);
@@ -197,7 +197,7 @@ public sealed class SparkplugApplication : SparkplugApplicationBase<Metric>
                 }
 
                 this.ProcessPayload(topic, filteredMetrics, SparkplugMetricStatus.Offline);
-                await this.FireDeviceDeathReceived(topic.GroupIdentifier, topic.EdgeNodeIdentifier, topic.DeviceIdentifier);
+                await this.FireDeviceDeathReceived(topic.GroupIdentifier, topic.EdgeNodeIdentifier, topic.DeviceIdentifier != null ? topic.DeviceIdentifier : string.Empty);
                 break;
         }
     }

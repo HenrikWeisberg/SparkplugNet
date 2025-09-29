@@ -198,7 +198,7 @@ public sealed class SparkplugApplication : SparkplugApplicationBase<VersionAData
                 }
 
                 var deviceDataMetrics = this.ProcessPayload(topic, filteredMetrics, SparkplugMetricStatus.Online);
-                await this.FireDeviceDataReceived(topic.GroupIdentifier, topic.EdgeNodeIdentifier, topic.DeviceIdentifier, deviceDataMetrics);
+                await this.FireDeviceDataReceived(topic.GroupIdentifier, topic.EdgeNodeIdentifier, topic.DeviceIdentifier == null ? string.Empty : topic.DeviceIdentifier, deviceDataMetrics);
                 break;
             case SparkplugMessageType.NodeDeath:
                 this.ProcessPayload(topic, filteredMetrics, SparkplugMetricStatus.Offline);
@@ -211,7 +211,7 @@ public sealed class SparkplugApplication : SparkplugApplicationBase<VersionAData
                 }
 
                 this.ProcessPayload(topic, filteredMetrics, SparkplugMetricStatus.Offline);
-                await this.FireDeviceDeathReceived(topic.GroupIdentifier, topic.EdgeNodeIdentifier, topic.DeviceIdentifier);
+                await this.FireDeviceDeathReceived(topic.GroupIdentifier, topic.EdgeNodeIdentifier, topic.DeviceIdentifier == null ? string.Empty : topic.DeviceIdentifier);
                 break;
         }
     }

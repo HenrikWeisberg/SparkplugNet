@@ -77,8 +77,8 @@ public sealed class SparkplugNodeOptions : SparkplugBaseOptions
             mqttTlsOptions,
             mqttWebSocketOptions)
     {
-        this.GroupIdentifier = string.IsNullOrWhiteSpace(groupIdentifier) ? DefaultGroupIdentifier : groupIdentifier;
-        this.EdgeNodeIdentifier = string.IsNullOrWhiteSpace(edgeNodeIdentifier) ? DefaultEdgeNodeIdentifier : edgeNodeIdentifier;
+        this.GroupIdentifier = groupIdentifier == null || string.IsNullOrWhiteSpace(groupIdentifier) ? DefaultGroupIdentifier : groupIdentifier;
+        this.EdgeNodeIdentifier = edgeNodeIdentifier == null || string.IsNullOrWhiteSpace(edgeNodeIdentifier) ? DefaultEdgeNodeIdentifier : edgeNodeIdentifier;
         this.CancellationToken = cancellationToken ?? SystemCancellationToken.None;
     }
 

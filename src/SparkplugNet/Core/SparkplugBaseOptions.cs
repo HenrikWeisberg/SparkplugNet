@@ -79,12 +79,12 @@ public abstract class SparkplugBaseOptions
         MqttClientTlsOptions? mqttTlsOptions = null,
         MqttClientWebSocketOptions? mqttWebSocketOptions = null)
     {
-        this.BrokerAddress = string.IsNullOrWhiteSpace(brokerAddress) ? DefaultBroker : brokerAddress;
+        this.BrokerAddress = brokerAddress == null || string.IsNullOrWhiteSpace(brokerAddress) ? DefaultBroker : brokerAddress;
         this.Port = port ?? DefaultPort;
-        this.ClientId = string.IsNullOrWhiteSpace(clientId) ? DefaultClientId : clientId;
-        this.UserName = string.IsNullOrWhiteSpace(userName) ? DefaultUserName : userName;
-        this.Password = string.IsNullOrWhiteSpace(password) ? DefaultPassword : password;
-        this.ScadaHostIdentifier = string.IsNullOrWhiteSpace(scadaHostIdentifier) ? DefaultScadaHostIdentifier : scadaHostIdentifier;
+        this.ClientId = clientId == null || string.IsNullOrWhiteSpace(clientId) ? DefaultClientId : clientId;
+        this.UserName = userName == null || string.IsNullOrWhiteSpace(userName) ? DefaultUserName : userName;
+        this.Password = password == null || string.IsNullOrWhiteSpace(password) ? DefaultPassword : password;
+        this.ScadaHostIdentifier = scadaHostIdentifier== null || string.IsNullOrWhiteSpace(scadaHostIdentifier) ? DefaultScadaHostIdentifier : scadaHostIdentifier;
         this.ReconnectInterval = reconnectInterval ?? DefaultReconnectInterval;
         this.MqttProtocolVersion = mqttProtocolVersion ?? DefaultMqttProtocolVersion;
         this.MqttTlsOptions = mqttTlsOptions;

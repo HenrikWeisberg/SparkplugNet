@@ -158,11 +158,11 @@ internal static class PayloadConverter
                 metric.SetValue(VersionBDataTypeEnum.UInt64Array, uInt64Array);
                 break;
             case VersionBDataTypeEnum.FloatArray:
-                var floatArray = PayloadHelper.GetArrayOfTFromBytes(protoMetric.BytesValue, BinaryPrimitives.ReadSingleLittleEndian);
+                var floatArray = PayloadHelper.GetArrayOfTFromBytes(protoMetric.BytesValue, BinaryPrimitivesCompat.ReadSingleLittleEndian);
                 metric.SetValue(VersionBDataTypeEnum.FloatArray, floatArray);
                 break;
             case VersionBDataTypeEnum.DoubleArray:
-                var doubleArray = PayloadHelper.GetArrayOfTFromBytes(protoMetric.BytesValue, BinaryPrimitives.ReadDoubleLittleEndian);
+                var doubleArray = PayloadHelper.GetArrayOfTFromBytes(protoMetric.BytesValue, BinaryPrimitivesCompat.ReadDoubleLittleEndian);
                 metric.SetValue(VersionBDataTypeEnum.DoubleArray, doubleArray);
                 break;
             case VersionBDataTypeEnum.BooleanArray:
@@ -295,17 +295,17 @@ internal static class PayloadConverter
                 protoMetric.BytesValue = PayloadHelper.GetBytesFromArray(metric.Value as ulong[] ?? [], BinaryPrimitives.WriteUInt64LittleEndian);
                 break;
             case VersionBDataTypeEnum.FloatArray:
-                protoMetric.BytesValue = PayloadHelper.GetBytesFromArray(metric.Value as float[] ?? [], BinaryPrimitives.WriteSingleLittleEndian);
+                protoMetric.BytesValue = PayloadHelper.GetBytesFromArray(metric.Value as float[] ?? [], BinaryPrimitivesCompat.WriteSingleLittleEndian);
                 break;
             case VersionBDataTypeEnum.DoubleArray:
-                protoMetric.BytesValue = PayloadHelper.GetBytesFromArray(metric.Value as double[] ?? [], BinaryPrimitives.WriteDoubleLittleEndian);
+                protoMetric.BytesValue = PayloadHelper.GetBytesFromArray(metric.Value as double[] ?? [], BinaryPrimitivesCompat.WriteDoubleLittleEndian);
                 break;
             case VersionBDataTypeEnum.BooleanArray:
                 protoMetric.BytesValue = ConvertBooleanByteArray(metric.Value);
                 break;
             case VersionBDataTypeEnum.StringArray:
                 var stringsArray = metric.Value as string[] ?? [];
-                var joinedStrings = string.Join('\0', stringsArray) + '\0';
+                var joinedStrings = string.Join("\0", stringsArray) + '\0';
                 protoMetric.BytesValue = Encoding.UTF8.GetBytes(joinedStrings);
                 break;
             case VersionBDataTypeEnum.DateTimeArray:

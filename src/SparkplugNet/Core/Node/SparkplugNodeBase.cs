@@ -240,7 +240,7 @@ public abstract partial class SparkplugNodeBase<T> : SparkplugBase<T> where T : 
         else if (topic.Contains(SparkplugMessageType.StateMessage.GetDescription()))
         {
             // Handle the STATE message before anything else as they're UTF-8 encoded.
-            await this.FireStatusMessageReceived(Encoding.UTF8.GetString(args.ApplicationMessage.PayloadSegment));
+            await this.FireStatusMessageReceived(Encoding.UTF8.GetString(args.ApplicationMessage.PayloadSegment.Array));
         }
         else
         {

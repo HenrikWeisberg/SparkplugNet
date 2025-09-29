@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
+        <TargetFrameworks>netstandard2.0</TargetFrameworks>
         <AssemblyName>SparkplugNet</AssemblyName>
         <RootNamespace>SparkplugNet</RootNamespace>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -42,6 +42,7 @@
         </PackageReference>
         <PackageReference Include="MQTTnet" Version="4.3.7.1207" />
         <PackageReference Include="protobuf-net" Version="3.2.45" />
+        <PackageReference Include="System.Text.Json" Version="9.0.9" />
     </ItemGroup>
 
     <ItemGroup>
