@@ -84,7 +84,10 @@ public abstract class SparkplugBaseOptions
         this.ClientId = clientId == null || string.IsNullOrWhiteSpace(clientId) ? DefaultClientId : clientId;
         this.UserName = userName == null || string.IsNullOrWhiteSpace(userName) ? DefaultUserName : userName;
         this.Password = password == null || string.IsNullOrWhiteSpace(password) ? DefaultPassword : password;
-        this.ScadaHostIdentifier = scadaHostIdentifier== null || string.IsNullOrWhiteSpace(scadaHostIdentifier) ? DefaultScadaHostIdentifier : scadaHostIdentifier;
+        // Begin HEWA 
+        this.ScadaHostIdentifier = scadaHostIdentifier == null || string.IsNullOrWhiteSpace(scadaHostIdentifier) ? string.Empty : scadaHostIdentifier;
+        //        this.ScadaHostIdentifier = scadaHostIdentifier == null || string.IsNullOrWhiteSpace(scadaHostIdentifier) ? DefaultScadaHostIdentifier : scadaHostIdentifier;
+        // End HEWA
         this.ReconnectInterval = reconnectInterval ?? DefaultReconnectInterval;
         this.MqttProtocolVersion = mqttProtocolVersion ?? DefaultMqttProtocolVersion;
         this.MqttTlsOptions = mqttTlsOptions;

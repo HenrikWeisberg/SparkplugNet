@@ -41,6 +41,13 @@ public sealed class SparkplugMessageGeneratorTestVersion22
     /// </summary>
     private readonly VersionBData.Metric seqMetricB = new(Constants.SessionNumberMetricName, VersionBData.DataType.Int64, 1);
 
+    //Begin HEWA: rebirth metric for namespace B
+    /// <summary>
+    /// The SEQ metric for namespace B.
+    /// </summary>
+    private readonly VersionBData.Metric rebirthMetricB = new(Constants.NodeControlRebirthName, VersionBData.DataType.Boolean, false);
+    // End HEWA
+
     /// <summary>
     /// The message generator.
     /// </summary>
@@ -179,7 +186,10 @@ public sealed class SparkplugMessageGeneratorTestVersion22
         Assert.AreEqual("spBv1.0/group1/NBIRTH/edge1", message.Topic);
         Assert.IsNotNull(payloadVersionB);
         Assert.AreEqual((ulong)dateTime.ToUnixTimeMilliseconds(), payloadVersionB.Timestamp);
-        Assert.AreEqual(2, payloadVersionB.Metrics.Count);
+        // Begin HEWA: Node rebirth added
+//        Assert.AreEqual(2, payloadVersionB.Metrics.Count);
+        Assert.AreEqual(3, payloadVersionB.Metrics.Count);
+        // End HEWA
 
         Assert.AreEqual(this.metricsB.First().Name, payloadVersionB.Metrics.ElementAt(0).Name);
         Assert.AreEqual(Convert.ToUInt32(this.metricsB.First().Value), payloadVersionB.Metrics.ElementAt(0).IntValue);
@@ -188,6 +198,12 @@ public sealed class SparkplugMessageGeneratorTestVersion22
         Assert.AreEqual(this.seqMetricB.Name, payloadVersionB.Metrics.ElementAt(1).Name);
         Assert.AreEqual(Convert.ToUInt64(this.seqMetricB.Value), payloadVersionB.Metrics.ElementAt(1).LongValue);
         Assert.AreEqual((uint?)this.seqMetricB.DataType, payloadVersionB.Metrics.ElementAt(1).DataType);
+
+        // Begin HEWA: Node rebirth added
+        Assert.AreEqual(this.rebirthMetricB.Name, payloadVersionB.Metrics.ElementAt(2).Name);
+        Assert.AreEqual(Convert.ToBoolean(this.rebirthMetricB.Value), payloadVersionB.Metrics.ElementAt(2).BooleanValue);
+        Assert.AreEqual((uint?)this.rebirthMetricB.DataType, payloadVersionB.Metrics.ElementAt(2).DataType);
+        // End HEWA
     }
 
     /// <summary>
@@ -303,15 +319,20 @@ public sealed class SparkplugMessageGeneratorTestVersion22
         Assert.AreEqual("spBv1.0/group1/DDATA/edge1/device1", message.Topic);
         Assert.IsNotNull(payloadVersionB);
         Assert.AreEqual((ulong)dateTime.ToUnixTimeMilliseconds(), payloadVersionB.Timestamp);
-        Assert.AreEqual(2, payloadVersionB.Metrics.Count);
+        // Begin HEWA: No session number added
+        // Assert.AreEqual(2, payloadVersionB.Metrics.Count);
+        Assert.AreEqual(1, payloadVersionB.Metrics.Count);
+        // End HEWA
 
         Assert.AreEqual(this.metricsB.First().Name, payloadVersionB.Metrics.ElementAt(0).Name);
         Assert.AreEqual(Convert.ToUInt32(this.metricsB.First().Value), payloadVersionB.Metrics.ElementAt(0).IntValue);
         Assert.AreEqual((uint?)this.metricsB.First().DataType, payloadVersionB.Metrics.ElementAt(0).DataType);
 
-        Assert.AreEqual(this.seqMetricB.Name, payloadVersionB.Metrics.ElementAt(1).Name);
-        Assert.AreEqual(Convert.ToUInt64(this.seqMetricB.Value), payloadVersionB.Metrics.ElementAt(1).LongValue);
-        Assert.AreEqual((uint?)this.seqMetricB.DataType, payloadVersionB.Metrics.ElementAt(1).DataType);
+        // Begin HEWA: No session number added
+        //Assert.AreEqual(this.seqMetricB.Name, payloadVersionB.Metrics.ElementAt(1).Name);
+        //Assert.AreEqual(Convert.ToUInt64(this.seqMetricB.Value), payloadVersionB.Metrics.ElementAt(1).LongValue);
+        //Assert.AreEqual((uint?)this.seqMetricB.DataType, payloadVersionB.Metrics.ElementAt(1).DataType);
+        // End HEWA
     }
 
     /// <summary>

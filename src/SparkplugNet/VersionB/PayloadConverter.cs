@@ -44,6 +44,23 @@ internal static class PayloadConverter
             Uuid = payload.Uuid
         };
 
+    //Begin HEWA: Support correct device data convertion using alias
+    /// <summary>
+    /// Gets the ProtoBuf payload converted from the version B payload.
+    /// </summary>
+    /// <param name="payload">The <see cref="Payload"/>.</param>
+    /// <returns>The <see cref="VersionBProtoBuf.ProtobufPayloadBase"/>.</returns>
+    public static T ConvertVersionBPayloadAlias<T>(Payload payload) where T : VersionBProtoBuf.ProtobufPayloadBase, new()
+        => new()
+        {
+            Body = payload.Body,
+            Metrics = payload.Metrics.Select(ConvertVersionBMetricAlias).ToList(),
+            Seq = payload.Seq,
+            Timestamp = payload.Timestamp,
+            Uuid = payload.Uuid
+        };
+    //End HEWA
+
     /// <summary>
     /// Gets the version B metric from the version B ProtoBuf metric.
     /// </summary>
@@ -209,6 +226,42 @@ internal static class PayloadConverter
             PropertySetValue = metric.Properties is not null ? ConvertVersionBPropertySet(metric.Properties.ConvertOrDefaultTo<PropertySet>()) : null
         };
 
+        ConvertVersionBMetricDataEx(metric, protoMetric);
+
+        return protoMetric;
+    }
+
+    // Begin HEWA: Do not include metric name if alias > 0
+    /// <summary>
+    /// Gets the version B ProtoBuf metric from the version B metric.
+    /// </summary>
+    /// <param name="metric">The <see cref="Metric"/>.</param>
+    /// <exception cref="ArgumentException">Thrown if the property set data type is set for a metric.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown if the metric data type is unknown.</exception>
+    /// <returns>The <see cref="VersionBProtoBuf.ProtobufPayloadBase.Metric"/>.</returns>
+    public static VersionBProtoBuf.ProtoBufPayload.Metric ConvertVersionBMetricAlias(Metric metric)
+    {
+        var protoMetric = new VersionBProtoBuf.ProtoBufPayload.Metric()
+        {
+            Alias = metric.Alias,
+            DataType = (uint?)ConvertVersionBDataType(metric.DataType),
+            IsHistorical = metric.IsHistorical,
+            IsNull = metric.IsNull,
+            IsTransient = metric.IsTransient,
+            MetaData = ConvertVersionBMetaData(metric.MetaData),
+            Name = metric.Alias > 0 ? string.Empty : metric.Name,
+            Timestamp = metric.Timestamp,
+            PropertySetValue = metric.Properties is not null ? ConvertVersionBPropertySet(metric.Properties.ConvertOrDefaultTo<PropertySet>()) : null
+        };
+
+        ConvertVersionBMetricDataEx(metric, protoMetric);
+
+        return protoMetric;
+    }
+    // End HEWA
+
+    private static VersionBProtoBuf.ProtoBufPayload.Metric ConvertVersionBMetricDataEx(Metric metric, VersionBProtoBuf.ProtoBufPayload.Metric protoMetric)
+    {
         switch (metric.DataType)
         {
             case VersionBDataTypeEnum.Int8:

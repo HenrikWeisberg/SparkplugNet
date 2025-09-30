@@ -32,6 +32,7 @@ public partial class SparkplugBase<T> : ISparkplugConnection where T : IMetric, 
     /// </summary>
     protected KnownMetricStorage knownMetrics;
 
+    // Begin HEWA: Added bdseq parameter to constructor
     /// <inheritdoc cref="ISparkplugConnection"/>
     /// <summary>
     /// Initializes a new instance of the <see cref="SparkplugBase{T}"/> class.
@@ -39,9 +40,10 @@ public partial class SparkplugBase<T> : ISparkplugConnection where T : IMetric, 
     /// <param name="knownMetrics">The metric names.</param>
     /// <param name="specificationVersion">The Sparkplug specification version.</param>
     /// <param name="logger">The logger.</param>
+    /// <param name="bdseq">The initial bdseq</param>
     /// <seealso cref="ISparkplugConnection"/>
-    public SparkplugBase(IEnumerable<T> knownMetrics, SparkplugSpecificationVersion specificationVersion, ILogger<KnownMetricStorage>? logger = null)
-        : this(new KnownMetricStorage(knownMetrics, logger), specificationVersion)
+    public SparkplugBase(IEnumerable<T> knownMetrics, SparkplugSpecificationVersion specificationVersion, ILogger<KnownMetricStorage>? logger = null, long bdseq = 0)
+        : this(new KnownMetricStorage(knownMetrics, logger), specificationVersion, bdseq)
     {
     }
 
@@ -51,8 +53,9 @@ public partial class SparkplugBase<T> : ISparkplugConnection where T : IMetric, 
     /// </summary>
     /// <param name="knownMetricsStorage">The known metrics storage.</param>
     /// <param name="specificationVersion">The Sparkplug specification version.</param>
+    /// <param name="bdseq">The initial bdseq</param>
     /// <seealso cref="ISparkplugConnection"/>
-    public SparkplugBase(KnownMetricStorage knownMetricsStorage, SparkplugSpecificationVersion specificationVersion)
+    public SparkplugBase(KnownMetricStorage knownMetricsStorage, SparkplugSpecificationVersion specificationVersion, long bdseq = 0)
     {
         this.knownMetrics = knownMetricsStorage;
 
@@ -65,9 +68,12 @@ public partial class SparkplugBase<T> : ISparkplugConnection where T : IMetric, 
             this.NameSpace = SparkplugNamespace.VersionB;
         }
 
+        this.LastSessionNumber = bdseq;
+
         this.client = new MqttFactory().CreateMqttClient();
         this.messageGenerator = new SparkplugMessageGenerator(specificationVersion);
     }
+    // End HEWA
 
     /// <summary>
     /// Gets or sets the MQTT client options.
@@ -79,10 +85,13 @@ public partial class SparkplugBase<T> : ISparkplugConnection where T : IMetric, 
     /// </summary>
     protected int LastSequenceNumber { get; private set; }
 
+    // Begin HEWA: Changed from protected to public and change initial value
     /// <summary>
     /// Gets the last session number. Starts at -1 as it is incremented before the connect already.
     /// </summary>
-    protected long LastSessionNumber { get; private set; } = -1;
+    public long LastSessionNumber { get; private set; } = 0;
+    ////protected long LastSessionNumber { get; private set; } = -1;
+    // End HEWA
 
     /// <summary>
     /// Gets the Sparkplug namespace.

@@ -16,6 +16,7 @@ namespace SparkplugNet.VersionB;
 /// <seealso cref="SparkplugNodeBase{T}"/>
 public sealed class SparkplugNode : SparkplugNodeBase<Metric>
 {
+    // Begin HEWA
     /// <inheritdoc cref="SparkplugNodeBase{T}"/>
     /// <summary>
     /// Initializes a new instance of the <see cref="SparkplugNode"/> class.
@@ -23,12 +24,14 @@ public sealed class SparkplugNode : SparkplugNodeBase<Metric>
     /// <param name="knownMetrics">The known metrics.</param>
     /// <param name="specificationVersion">The Sparkplug specification version.</param>
     /// <param name="logger">The logger.</param>
+    /// <param name="bdseq">The birth/death sequence number.</param>
     /// <seealso cref="SparkplugNodeBase{T}"/>
     public SparkplugNode(
         IEnumerable<Metric> knownMetrics,
         SparkplugSpecificationVersion specificationVersion,
-        ILogger<KnownMetricStorage>? logger = null)
-        : base(knownMetrics, specificationVersion, logger)
+        ILogger<KnownMetricStorage>? logger = null,
+        long bdseq = 0)
+        : base(knownMetrics, specificationVersion, logger, bdseq)
     {
     }
 
@@ -38,13 +41,16 @@ public sealed class SparkplugNode : SparkplugNodeBase<Metric>
     /// </summary>
     /// <param name="knownMetricsStorage">The metric names.</param>
     /// <param name="specificationVersion">The Sparkplug specification version.</param>
+    /// <param name="bdseq">The birth/death sequence number.</param>
     /// <seealso cref="SparkplugNodeBase{T}"/>
     public SparkplugNode(
         KnownMetricStorage knownMetricsStorage,
-        SparkplugSpecificationVersion specificationVersion)
-        : base(knownMetricsStorage, specificationVersion)
+        SparkplugSpecificationVersion specificationVersion,
+        long bdseq = 0)
+        : base(knownMetricsStorage, specificationVersion, bdseq)
     {
     }
+    // End HEWA
 
     /// <summary>
     /// Publishes version B metrics for a node.
@@ -135,6 +141,32 @@ public sealed class SparkplugNode : SparkplugNodeBase<Metric>
                 break;
 
             case SparkplugMessageType.NodeCommand:
+                // Begin HEWA: Compliance with Esclipse Sparkplug 3.0.0. Rebirth command must be handled
+                foreach (var metric in payload.Metrics)
+                {
+                    if (metric.Name == Constants.NodeControlRebirthName)
+                    {
+                        // The rebirth control node
+                        if (Convert.ToBoolean(metric.Value))
+                        {
+                            this.RebirthInProgress = true;
+                            try
+                            {
+                                // Value is true. We need to send rebirth
+                                // According to Esclipse Sparkplug birth must always be send on seq = 0. Hence reset
+                                this.ResetLastSequenceNumber();
+                                // Publish birth
+                                await this.PublishNodeAndDeviceBirths();
+                            }
+                            finally
+                            {
+                                this.RebirthInProgress = false;
+                            }
+                        }
+                    }
+                }
+                // End HEWA
+
                 await this.FireNodeCommandReceived(filteredMetrics);
                 break;
         }

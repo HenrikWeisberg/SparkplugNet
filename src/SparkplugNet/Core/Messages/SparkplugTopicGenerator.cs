@@ -71,6 +71,19 @@ internal static class SparkplugTopicGenerator
         return $"{SparkplugMessageType.StateMessage.GetDescription()}/{scadaHostIdentifier}";
     }
 
+    // Begin HEWA
+    /// <summary>
+    /// Gets state subscription topic.
+    /// </summary>
+    /// <param name="nameSpace">The namespace.</param>
+    /// <param name="scadaHostIdentifier">The SCADA host identifier.</param>
+    /// <returns>The state subscription topic <see cref="string"/></returns>
+    public static string GetStateSubscribeTopic(SparkplugNamespace nameSpace, string scadaHostIdentifier)
+    {
+        return $"{nameSpace.GetDescription()}/{SparkplugMessageType.StateMessage.GetDescription()}/{scadaHostIdentifier}";
+    }
+    //End HEWA
+
     /// <summary>
     /// Gets the topic (Except STATE messages).
     /// </summary>

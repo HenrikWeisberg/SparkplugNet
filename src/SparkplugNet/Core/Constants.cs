@@ -14,6 +14,14 @@ namespace SparkplugNet.Core;
 /// </summary>
 internal static class Constants
 {
+
+    // Begin HEWA: Compliance with Esclipse Sparkplug 3.0.0 standard. Must handle the node rebirth command
+    /// <summary>
+    /// The node control rebirth metric name.
+    /// </summary>
+    public const string NodeControlRebirthName = "Node Control/Rebirth";
+    // End HEWA
+
     /// <summary>
     /// The session number metric name.
     /// </summary>

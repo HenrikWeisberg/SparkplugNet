@@ -16,6 +16,7 @@ namespace SparkplugNet.Core.Node;
 /// <seealso cref="SparkplugBase{T}"/>
 public abstract partial class SparkplugNodeBase<T> : SparkplugBase<T> where T : IMetric, new()
 {
+    // Begin HEWA: Add bdseq to ctor
     /// <inheritdoc cref="SparkplugBase{T}"/>
     /// <summary>
     /// Initializes a new instance of the <see cref="SparkplugNodeBase{T}"/> class.
@@ -23,12 +24,13 @@ public abstract partial class SparkplugNodeBase<T> : SparkplugBase<T> where T : 
     /// <param name="knownMetrics">The metric names.</param>
     /// <param name="specificationVersion">The Sparkplug specification version.</param>
     /// <param name="logger">The logger.</param>
+    /// <param name="bdseq">The birth/death sequence number.</param>    
     /// <seealso cref="SparkplugBase{T}"/>
     public SparkplugNodeBase(
         IEnumerable<T> knownMetrics,
         SparkplugSpecificationVersion specificationVersion,
-        ILogger<KnownMetricStorage>? logger = null)
-        : base(knownMetrics, specificationVersion, logger)
+        ILogger<KnownMetricStorage>? logger = null, long bdseq = 0)
+        : base(knownMetrics, specificationVersion, logger, bdseq)
     {
     }
 
@@ -38,13 +40,15 @@ public abstract partial class SparkplugNodeBase<T> : SparkplugBase<T> where T : 
     /// </summary>
     /// <param name="knownMetricsStorage">The known metrics storage.</param>
     /// <param name="specificationVersion">The Sparkplug specification version.</param>
+    /// <param name="bdseq">The birth/death sequence number.</param>    
     /// <seealso cref="SparkplugBase{T}"/>
     public SparkplugNodeBase(
         KnownMetricStorage knownMetricsStorage,
-        SparkplugSpecificationVersion specificationVersion)
-        : base(knownMetricsStorage, specificationVersion)
+        SparkplugSpecificationVersion specificationVersion, long bdseq = 0)
+        : base(knownMetricsStorage, specificationVersion, bdseq)
     {
     }
+    //End HEWA
 
     /// <summary>
     /// Gets the options.
@@ -85,9 +89,29 @@ public abstract partial class SparkplugNodeBase<T> : SparkplugBase<T> where T : 
 
         // Connect, subscribe to incoming messages and send a state message.
         await this.ConnectInternal();
-        await this.SubscribeInternal();
-        await this.PublishNodeAndDeviceBirthsInternal();
+        // Begin HEWA
+        if (string.IsNullOrEmpty(this.Options.ScadaHostIdentifier))
+        {
+            await this.PublishNodeAndDeviceBirthsInternal();
+        }
+        //End HEWA
     }
+
+    // Begin HEWA
+    /// <summary>
+    /// Used to do a restart if the initial start failed due to a connection error
+    /// </summary>
+    /// <returns></returns>
+    public async Task Restart()
+    {
+        // Connect, subscribe to incoming messages and send a state message.
+        await this.SubscribeInternal();
+        if (this.Options == null || string.IsNullOrEmpty(this.Options.ScadaHostIdentifier))
+        {
+            await this.PublishNodeAndDeviceBirthsInternal();
+        }
+    }
+    //End HEWA
 
     /// <summary>
     /// Stops the Sparkplug node.
@@ -100,6 +124,26 @@ public abstract partial class SparkplugNodeBase<T> : SparkplugBase<T> where T : 
         await this.FireDisconnected();
         await this.client.DisconnectAsync();
     }
+
+    // Begin HEWA
+    /// <summary>
+    /// Stops the Sparkplug node.
+    /// </summary>
+    public async Task Stop(bool disconnect)
+    {
+        this.IsRunning = false;
+        this.RemoveEventHandlers();
+        if (this.IsConnected)
+        {
+            await this.SendNodeDeathMessage();
+            if (disconnect)
+            {
+                await this.FireDisconnected();
+                await this.client.DisconnectAsync();
+            }
+        }
+    }
+    // End HEWA
 
     /// <summary>
     /// Publishes some metrics.
@@ -169,6 +213,17 @@ public abstract partial class SparkplugNodeBase<T> : SparkplugBase<T> where T : 
         }
     }
 
+    // Begin HEWA
+    /// <summary>
+    /// Publishes data to the MQTT broker.
+    /// </summary>
+    /// <exception cref="ArgumentNullException">Thrown if the options are null.</exception>
+    protected async Task PublishNodeAndDeviceBirths()
+    {
+        await this.PublishNodeAndDeviceBirthsInternal();
+    }
+    // End HEWA
+
     /// <summary>
     /// Adds the event handlers to the client.
     /// </summary>
@@ -214,7 +269,12 @@ public abstract partial class SparkplugNodeBase<T> : SparkplugBase<T> where T : 
                 // Connect, subscribe to incoming messages and send a state message.
                 await this.ConnectInternal();
                 await this.SubscribeInternal();
-                await this.PublishNodeAndDeviceBirthsInternal();
+                // Begin HEWA
+                if (string.IsNullOrEmpty(this.Options.ScadaHostIdentifier))
+                {
+                    await this.PublishNodeAndDeviceBirthsInternal();
+                }
+                // End HEWA
             }
         }
         catch (Exception ex)
@@ -402,9 +462,20 @@ public abstract partial class SparkplugNodeBase<T> : SparkplugBase<T> where T : 
             this.Options.EdgeNodeIdentifier);
         await this.client.SubscribeAsync(deviceCommandSubscribeTopic, (MqttQualityOfServiceLevel)SparkplugQualityOfServiceLevel.AtLeastOnce);
 
-        // Subscribe to the state topic.
-        var stateSubscribeTopic = SparkplugTopicGenerator.GetStateSubscribeTopic(this.Options.ScadaHostIdentifier);
-        await this.client.SubscribeAsync(stateSubscribeTopic, (MqttQualityOfServiceLevel)SparkplugQualityOfServiceLevel.AtLeastOnce);
+        // Begin HEWA
+        if (!string.IsNullOrEmpty(this.Options.ScadaHostIdentifier))
+        {
+            //// There seems to be 2 implamentation of STATE
+            //// One where subscription includes spBv1.0/ and one whistdoes not, i.e.
+            //// spBv1.0/STATE/[ScadaHost]
+            //// STATE/[ScadaHost]
+            //// Hence we need to subscribe to both
+            var stateSubscribeTopic1 = SparkplugTopicGenerator.GetStateSubscribeTopic(this.Options.ScadaHostIdentifier);
+            await this.client.SubscribeAsync(stateSubscribeTopic1, (MqttQualityOfServiceLevel)SparkplugQualityOfServiceLevel.AtLeastOnce);
+            var stateSubscribeTopic2 = SparkplugTopicGenerator.GetStateSubscribeTopic(this.NameSpace, this.Options.ScadaHostIdentifier);
+            await this.client.SubscribeAsync(stateSubscribeTopic2, (MqttQualityOfServiceLevel)SparkplugQualityOfServiceLevel.AtLeastOnce);
+        }
+        // End HEWA
     }
 
     /// <summary>

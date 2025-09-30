@@ -21,6 +21,13 @@ public partial class SparkplugNodeBase<T>
     /// </summary>
     public ConcurrentDictionary<string, KnownMetricStorage> KnownDevices { get; } = new();
 
+    // Begin HEWA
+    /// <summary>
+    /// Returns true if rebirth is in progress
+    /// </summary>
+    public bool RebirthInProgress { get; protected set; } = false;
+    // End HEWA
+
     /// <summary>
     /// Publishes a device birth message to the MQTT broker.
     /// </summary>

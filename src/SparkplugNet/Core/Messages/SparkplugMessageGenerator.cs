@@ -101,8 +101,12 @@ internal sealed class SparkplugMessageGenerator
             case SparkplugNamespace.VersionB:
                 {
                     var newMetrics = metrics as IEnumerable<Metric> ?? new List<Metric>();
+                    // Begin HEWA: Compliance with Esclipse Sparkplug 3.0.0 standard. Must handle the node rebirth command
+                    newMetrics = AddSessionNumberToMetrics(newMetrics, sessionNumber);
+                    newMetrics = AddRebirthToMetrics(newMetrics);
                     return this.GetSparkplugNodeBirthB(nameSpace, groupIdentifier, edgeNodeIdentifier,
-                        AddSessionNumberToMetrics(newMetrics, sessionNumber), sequenceNumber, dateTime);
+                        newMetrics, sequenceNumber, dateTime);
+                    // End HEWA
                 }
 
             default:
@@ -391,8 +395,13 @@ internal sealed class SparkplugMessageGenerator
                 {
                     var newMetrics = metrics as IEnumerable<Metric>
                                      ?? new List<Metric>();
+                    //// Begin HEWA
+                    // Do not add session number to DDATA metrics
+                    //return this.GetSparkplugDeviceDataB(nameSpace, groupIdentifier, edgeNodeIdentifier, deviceIdentifier,
+                    //     AddSessionNumberToMetrics(newMetrics, sessionNumber), sequenceNumber, dateTime);
                     return this.GetSparkplugDeviceDataB(nameSpace, groupIdentifier, edgeNodeIdentifier, deviceIdentifier,
-                         AddSessionNumberToMetrics(newMetrics, sessionNumber), sequenceNumber, dateTime);
+                         newMetrics, sequenceNumber, dateTime);
+                    //// End HEWA
                 }
 
             default:
@@ -551,9 +560,26 @@ internal sealed class SparkplugMessageGenerator
         // Add a BDSEQ metric.
         return metrics.Concat(new Metric[]
         {
-            new Metric(Constants.SessionNumberMetricName, VersionBDataTypeEnum.Int64, sessionSequenceNumber)
+            // Begin HEWA: Add explicit timestamp
+            new Metric(Constants.SessionNumberMetricName, VersionBDataTypeEnum.Int64, sessionSequenceNumber, DateTimeOffset.UtcNow)
+            // End HEWA
         });
     }
+
+    // Begin HEWA: Compliance with Esclipse Sparkplug 3.0.0 standard. Must handle the node rebirth command
+    /// <summary>Adds the rebirth to the version B metrics.</summary>
+    /// <param name="metrics">The metrics.</param>
+    /// <returns>The metrics.</returns>
+    private static IEnumerable<Metric> AddRebirthToMetrics(
+        IEnumerable<Metric> metrics)
+    {
+        // Add a rebirth metric.
+        return metrics.Concat(new Metric[]
+        {
+            new Metric(Constants.NodeControlRebirthName, VersionBDataTypeEnum.Boolean, false, DateTimeOffset.UtcNow)
+        });
+    }
+    // End HEWA
 
     /// <summary>
     /// Gets a STATE message with namespace version A.
@@ -824,10 +850,15 @@ internal sealed class SparkplugMessageGenerator
     {
         var payload = new Payload
         {
+            // Begin HEWA: Add explicit timestamp
+            Timestamp = (ulong)DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+            // End HEWA
             Metrics = metrics.ToList()
         };
 
+        // Begin HEWA: Using dedicated PayloadDeath
         var convertedPayload = VersionB.PayloadConverter.ConvertVersionBPayload<VersionBProtoBuf.ProtobufPayloadDeath>(payload);
+        // End HEWA
         var serialized = PayloadHelper.Serialize(convertedPayload);
 
         return new MqttApplicationMessageBuilder()
@@ -1075,7 +1106,9 @@ internal sealed class SparkplugMessageGenerator
             Timestamp = (ulong)dateTime.ToUnixTimeMilliseconds()
         };
 
-        var convertedPayload = VersionB.PayloadConverter.ConvertVersionBPayload<VersionBProtoBuf.ProtoBufPayload>(payload);
+        // Begin HEWA: Correct device data convertion using alias
+        var convertedPayload = VersionB.PayloadConverter.ConvertVersionBPayloadAlias<VersionBProtoBuf.ProtoBufPayload>(payload);
+        // End HEWA
         var serialized = PayloadHelper.Serialize(convertedPayload);
 
         return new MqttApplicationMessageBuilder()
