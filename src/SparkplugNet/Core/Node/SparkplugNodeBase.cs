@@ -218,7 +218,7 @@ public abstract partial class SparkplugNodeBase<T> : SparkplugBase<T> where T : 
     /// Publishes data to the MQTT broker.
     /// </summary>
     /// <exception cref="ArgumentNullException">Thrown if the options are null.</exception>
-    protected async Task PublishNodeAndDeviceBirths()
+    public async Task PublishNodeAndDeviceBirths()
     {
         await this.PublishNodeAndDeviceBirthsInternal();
     }

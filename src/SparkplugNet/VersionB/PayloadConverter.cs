@@ -910,8 +910,26 @@ internal static class PayloadConverter
             case VersionBDataTypeEnum.UInt32:
             case VersionBDataTypeEnum.UInt64:
             case VersionBDataTypeEnum.DateTime:
-                protoParameter.LongValue = parameter.Value.ConvertOrDefaultTo<ulong>();
+                // Begin HEWA: Parameter DateTime convertion implemented as for metrics
+                if (parameter.Value is null)
+                {
+                    protoParameter.LongValue = default;
+                }
+                else if (parameter.Value is DateTimeOffset dateTimeOffset)
+                {
+                    protoParameter.LongValue = (ulong)dateTimeOffset.ToUnixTimeMilliseconds();
+                }
+                else if (parameter.Value is DateTime dateTime)
+                {
+                    protoParameter.LongValue = (ulong)new DateTimeOffset(dateTime).ToUnixTimeMilliseconds();
+                }
+                else
+                {
+                    protoParameter.LongValue = parameter.Value.ConvertOrDefaultTo<ulong>();
+                }
+
                 break;
+            // End HEWA
             case VersionBDataTypeEnum.Float:
                 protoParameter.FloatValue = parameter.Value.ConvertOrDefaultTo<float>();
                 break;
