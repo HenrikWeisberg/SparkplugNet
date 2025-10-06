@@ -698,7 +698,7 @@ internal sealed class SparkplugMessageGenerator
             Timestamp = (ulong)dateTime.ToUnixTimeMilliseconds()
         };
 
-        var convertedPayload = VersionB.PayloadConverter.ConvertVersionBPayload<VersionBProtoBuf.ProtoBufPayload>(payload);
+        var convertedPayload = VersionB.PayloadConverter.ConvertVersionBPayload(payload);
         var serialized = PayloadHelper.Serialize(convertedPayload);
 
         return new MqttApplicationMessageBuilder()
@@ -782,7 +782,7 @@ internal sealed class SparkplugMessageGenerator
             Timestamp = (ulong)dateTime.ToUnixTimeMilliseconds()
         };
 
-        var convertedPayload = VersionB.PayloadConverter.ConvertVersionBPayload<VersionBProtoBuf.ProtoBufPayload>(payload);
+        var convertedPayload = VersionB.PayloadConverter.ConvertVersionBPayload(payload);
         var serialized = PayloadHelper.Serialize(convertedPayload);
 
         return new MqttApplicationMessageBuilder()
@@ -857,7 +857,7 @@ internal sealed class SparkplugMessageGenerator
         };
 
         // Begin HEWA: Using dedicated PayloadDeath
-        var convertedPayload = VersionB.PayloadConverter.ConvertVersionBPayload<VersionBProtoBuf.ProtobufPayloadDeath>(payload);
+        var convertedPayload = VersionB.PayloadConverterDeath.ConvertVersionBPayload(payload);
         // End HEWA
         var serialized = PayloadHelper.Serialize(convertedPayload);
 
@@ -942,7 +942,9 @@ internal sealed class SparkplugMessageGenerator
             Timestamp = (ulong)dateTime.ToUnixTimeMilliseconds()
         };
 
-        var convertedPayload = VersionB.PayloadConverter.ConvertVersionBPayload<VersionBProtoBuf.ProtobufPayloadDeath>(payload);
+        // Begin HEWA: Using dedicated PayloadDeath
+        var convertedPayload = VersionB.PayloadConverterDeath.ConvertVersionBPayload(payload);
+        // End HEWA
         var serialized = PayloadHelper.Serialize(convertedPayload);
 
         return new MqttApplicationMessageBuilder()
@@ -1022,7 +1024,7 @@ internal sealed class SparkplugMessageGenerator
             Timestamp = (ulong)dateTime.ToUnixTimeMilliseconds()
         };
 
-        var convertedPayload = VersionB.PayloadConverter.ConvertVersionBPayload<VersionBProtoBuf.ProtoBufPayload>(payload);
+        var convertedPayload = VersionB.PayloadConverter.ConvertVersionBPayload(payload);
         var serialized = PayloadHelper.Serialize(convertedPayload);
 
         return new MqttApplicationMessageBuilder()
@@ -1107,7 +1109,7 @@ internal sealed class SparkplugMessageGenerator
         };
 
         // Begin HEWA: Correct device data convertion using alias
-        var convertedPayload = VersionB.PayloadConverter.ConvertVersionBPayloadAlias<VersionBProtoBuf.ProtoBufPayload>(payload);
+        var convertedPayload = VersionB.PayloadConverter.ConvertVersionBPayloadAlias(payload);
         // End HEWA
         var serialized = PayloadHelper.Serialize(convertedPayload);
 
@@ -1187,7 +1189,7 @@ internal sealed class SparkplugMessageGenerator
             Timestamp = (ulong)dateTime.ToUnixTimeMilliseconds()
         };
 
-        var convertedPayload = VersionB.PayloadConverter.ConvertVersionBPayload<VersionBProtoBuf.ProtoBufPayload>(payload);
+        var convertedPayload = VersionB.PayloadConverter.ConvertVersionBPayload(payload);
         var serialized = PayloadHelper.Serialize(convertedPayload);
 
         return new MqttApplicationMessageBuilder()
@@ -1269,7 +1271,7 @@ internal sealed class SparkplugMessageGenerator
             Timestamp = (ulong)dateTime.ToUnixTimeMilliseconds()
         };
 
-        var convertedPayload = VersionB.PayloadConverter.ConvertVersionBPayload<VersionBProtoBuf.ProtoBufPayload>(payload);
+        var convertedPayload = VersionB.PayloadConverter.ConvertVersionBPayload(payload);
         var serialized = PayloadHelper.Serialize(convertedPayload);
 
         return new MqttApplicationMessageBuilder()

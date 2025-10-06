@@ -1829,7 +1829,7 @@ public sealed class SparkplugPayloadConverterTestVersionB
             Uuid = "477a41e5-f0ba-4b98-9522-95d44861d993",
             Metrics = metrics
         };
-        var payload = VersionBMain.PayloadConverter.ConvertVersionBPayload<VersionBProtoBuf.ProtoBufPayload>(oldPayload);
+        var payload = VersionBMain.PayloadConverter.ConvertVersionBPayload(oldPayload);
         Assert.IsNotNull(payload);
         CollectionAssert.AreEqual(bodyData, payload.Body);
         Assert.AreEqual((ulong)timestamp.ToUnixTimeMilliseconds(), payload.Timestamp);
@@ -1884,7 +1884,7 @@ public sealed class SparkplugPayloadConverterTestVersionB
             Uuid = "477a41e5-f0ba-4b98-9522-95d44861d993",
             Metrics = metrics
         };
-        var payload = VersionBMain.PayloadConverter.ConvertVersionBPayload<VersionBProtoBuf.ProtoBufPayload>(oldPayload);
+        var payload = VersionBMain.PayloadConverter.ConvertVersionBPayload(oldPayload);
         Assert.IsNotNull(payload);
         CollectionAssert.AreEqual(bodyData, payload.Body);
         Assert.AreEqual((ulong)timestamp.ToUnixTimeMilliseconds(), payload.Timestamp);
@@ -2108,7 +2108,7 @@ public sealed class SparkplugPayloadConverterTestVersionB
             Uuid = "477a41e5-f0ba-4b98-9522-95d44861d993",
             Metrics = metrics
         };
-        var payload = VersionBMain.PayloadConverter.ConvertVersionBPayload<VersionBProtoBuf.ProtoBufPayload>(oldPayload);
+        var payload = VersionBMain.PayloadConverter.ConvertVersionBPayload(oldPayload);
         Assert.IsNotNull(payload);
         CollectionAssert.AreEqual(bodyData, payload.Body);
         Assert.AreEqual((ulong)timestamp.ToUnixTimeMilliseconds(), payload.Timestamp);
