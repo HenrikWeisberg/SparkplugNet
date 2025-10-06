@@ -454,7 +454,10 @@ public sealed class KnownMetricStorageFilterTests
         Assert.IsTrue(node.KnownMetrics.Count() == 1);
 
         // Test filter function.
-        var filteredMetrics = node.KnownMetricsStorage.FilterMetrics(filterMetrics, SparkplugMessageType.NodeBirth);
+        // Begin HEWA
+        // var filteredMetrics = node.KnownMetricsStorage.FilterMetrics(filterMetrics, SparkplugMessageType.NodeBirth);
+        var filteredMetrics = node.KnownMetricsStorage.FilterMetrics(filterMetrics, SparkplugMessageType.DeviceData);
+        // End HEWA
         Assert.IsTrue(!filteredMetrics.Any());
     }
 

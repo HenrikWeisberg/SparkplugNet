@@ -1108,9 +1108,7 @@ internal sealed class SparkplugMessageGenerator
             Timestamp = (ulong)dateTime.ToUnixTimeMilliseconds()
         };
 
-        // Begin HEWA: Correct device data convertion using alias
-        var convertedPayload = VersionB.PayloadConverter.ConvertVersionBPayloadAlias(payload);
-        // End HEWA
+        var convertedPayload = VersionB.PayloadConverter.ConvertVersionBPayload(payload);
         var serialized = PayloadHelper.Serialize(convertedPayload);
 
         return new MqttApplicationMessageBuilder()

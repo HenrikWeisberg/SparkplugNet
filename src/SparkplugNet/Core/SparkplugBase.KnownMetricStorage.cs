@@ -191,11 +191,27 @@ public partial class SparkplugBase<T> : ISparkplugConnection where T : IMetric, 
                 else
                 {
                     // Check if the metric is known.
-                    if (!this.knownMetricsByName.TryGetValue(metric.Name, out var foundMetric))
+                    // Begin HEWA: Alias logic not working
+                    T? foundMetric = default;
+                    if (metric.Alias.HasValue)
                     {
-                        shouldbeAdded = false;
-                        this.Logger?.LogError("The metric {Metric} is removed because it is unknown.", metric);
+                        if (!this.knownMetricsByAlias.TryGetValue(metric.Alias.Value, out foundMetric))
+                        {
+                            shouldbeAdded = false;
+                            this.Logger?.LogError("The metric {Metric} is removed because it is unknown.", metric);
+                        }
                     }
+                    else
+                    {
+
+                        if (!this.knownMetricsByName.TryGetValue(metric.Name, out foundMetric))
+                        {
+                            shouldbeAdded = false;
+                            this.Logger?.LogError("The metric {Metric} is removed because it is unknown.", metric);
+                        }
+                    }
+
+                    // End HEWA
 
                     // Check if the found metric is a version B metric.
                     if (foundMetric is not Metric foundVersionBMetric)
@@ -283,15 +299,40 @@ public partial class SparkplugBase<T> : ISparkplugConnection where T : IMetric, 
         /// <exception cref="InvalidMetricException">Thrown if the metric is invalid.</exception>
         private void AddVersionBMetric(T metric, Metric versionBMetric)
         {
+            // Version B: Metric might have name and alias.
             // Check the name of the metric.
-            if (string.IsNullOrWhiteSpace(versionBMetric.Name))
-            {
-                // Check the alias of the metric.
-                if (versionBMetric.Alias is null)
-                {
-                    throw new InvalidMetricException($"A metric without a name and an alias is not allowed.");
-                }
+            ////if (string.IsNullOrWhiteSpace(versionBMetric.Name))
+            ////{
+            ////    // Check the alias of the metric.
+            ////    if (versionBMetric.Alias is null)
+            ////    {
+            ////        throw new InvalidMetricException($"A metric without a name and an alias is not allowed.");
+            ////    }
 
+            ////    // Check the value of the metric.
+            ////    if (versionBMetric.Value is null)
+            ////    {
+            ////        throw new InvalidMetricException($"A metric without a current value is not allowed.");
+            ////    }
+
+            ////    // Hint: Data type doesn't need to be checked, is not nullable.
+            ////    this.knownMetricsByAlias[versionBMetric.Alias.Value] = metric;
+            ////}
+            ////else
+            ////{
+            ////    // Check the value of the metric.
+            ////    if (metric.Value is null)
+            ////    {
+            ////        throw new InvalidMetricException($"A metric without a current value is not allowed.");
+            ////    }
+
+            ////    // Hint: Data type doesn't need to be checked, is not nullable.
+            ////    this.knownMetricsByName[metric.Name] = metric;
+            ////}
+
+            // Check the alias of the metric.
+            if (versionBMetric.Alias.HasValue)
+            {
                 // Check the value of the metric.
                 if (versionBMetric.Value is null)
                 {
@@ -303,6 +344,11 @@ public partial class SparkplugBase<T> : ISparkplugConnection where T : IMetric, 
             }
             else
             {
+                if (string.IsNullOrEmpty(versionBMetric.Name))
+                {
+                    throw new InvalidMetricException($"A metric without a name and an alias is not allowed.");
+                }
+
                 // Check the value of the metric.
                 if (metric.Value is null)
                 {
