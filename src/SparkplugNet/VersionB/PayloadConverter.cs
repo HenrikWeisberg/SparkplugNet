@@ -31,20 +31,24 @@ internal static class PayloadConverter
             Uuid = protoPayload.Uuid ?? string.Empty
         };
 
+    // Begin HEWA: Added message type parameter
     /// <summary>
     /// Gets the ProtoBuf payload converted from the version B payload.
     /// </summary>
     /// <param name="payload">The <see cref="Payload"/>.</param>
+    /// <param name="messageType">The <see cref="SparkplugMessageType"/>.</param>
     /// <returns>The <see cref="VersionBProtoBuf.ProtoBufPayload"/>.</returns>
-    public static VersionBProtoBuf.ProtoBufPayload ConvertVersionBPayload(Payload payload)
+    public static VersionBProtoBuf.ProtoBufPayload ConvertVersionBPayload(Payload payload, SparkplugMessageType messageType)
         => new()
         {
             Body = payload.Body,
             Metrics = payload.Metrics.Select(ConvertVersionBMetric).ToList(),
             Seq = payload.Seq,
             Timestamp = payload.Timestamp,
-            Uuid = payload.Uuid
+            Uuid = payload.Uuid,
+            MessageType = messageType
         };
+    // End HEWA: Added message type parameter
 
     /// <summary>
     /// Gets the version B metric from the version B ProtoBuf metric.

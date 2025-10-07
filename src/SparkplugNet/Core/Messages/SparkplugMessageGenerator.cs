@@ -698,7 +698,7 @@ internal sealed class SparkplugMessageGenerator
             Timestamp = (ulong)dateTime.ToUnixTimeMilliseconds()
         };
 
-        var convertedPayload = VersionB.PayloadConverter.ConvertVersionBPayload(payload);
+        var convertedPayload = VersionB.PayloadConverter.ConvertVersionBPayload(payload, SparkplugMessageType.NodeBirth);
         var serialized = PayloadHelper.Serialize(convertedPayload);
 
         return new MqttApplicationMessageBuilder()
@@ -782,7 +782,8 @@ internal sealed class SparkplugMessageGenerator
             Timestamp = (ulong)dateTime.ToUnixTimeMilliseconds()
         };
 
-        var convertedPayload = VersionB.PayloadConverter.ConvertVersionBPayload(payload);
+        var convertedPayload = VersionB.PayloadConverter.ConvertVersionBPayload(payload, SparkplugMessageType.DeviceBirth);
+        convertedPayload.MessageType = SparkplugMessageType.DeviceBirth;
         var serialized = PayloadHelper.Serialize(convertedPayload);
 
         return new MqttApplicationMessageBuilder()
@@ -856,9 +857,7 @@ internal sealed class SparkplugMessageGenerator
             Metrics = metrics.ToList()
         };
 
-        // Begin HEWA: Using dedicated PayloadDeath
-        var convertedPayload = VersionB.PayloadConverterDeath.ConvertVersionBPayload(payload);
-        // End HEWA
+        var convertedPayload = VersionB.PayloadConverter.ConvertVersionBPayload(payload, SparkplugMessageType.NodeDeath);
         var serialized = PayloadHelper.Serialize(convertedPayload);
 
         return new MqttApplicationMessageBuilder()
@@ -942,9 +941,7 @@ internal sealed class SparkplugMessageGenerator
             Timestamp = (ulong)dateTime.ToUnixTimeMilliseconds()
         };
 
-        // Begin HEWA: Using dedicated PayloadDeath
-        var convertedPayload = VersionB.PayloadConverterDeath.ConvertVersionBPayload(payload);
-        // End HEWA
+        var convertedPayload = VersionB.PayloadConverter.ConvertVersionBPayload(payload, SparkplugMessageType.DeviceDeath);
         var serialized = PayloadHelper.Serialize(convertedPayload);
 
         return new MqttApplicationMessageBuilder()
@@ -1024,7 +1021,7 @@ internal sealed class SparkplugMessageGenerator
             Timestamp = (ulong)dateTime.ToUnixTimeMilliseconds()
         };
 
-        var convertedPayload = VersionB.PayloadConverter.ConvertVersionBPayload(payload);
+        var convertedPayload = VersionB.PayloadConverter.ConvertVersionBPayload(payload, SparkplugMessageType.NodeData);
         var serialized = PayloadHelper.Serialize(convertedPayload);
 
         return new MqttApplicationMessageBuilder()
@@ -1108,7 +1105,7 @@ internal sealed class SparkplugMessageGenerator
             Timestamp = (ulong)dateTime.ToUnixTimeMilliseconds()
         };
 
-        var convertedPayload = VersionB.PayloadConverter.ConvertVersionBPayload(payload);
+        var convertedPayload = VersionB.PayloadConverter.ConvertVersionBPayload(payload, SparkplugMessageType.DeviceData);
         var serialized = PayloadHelper.Serialize(convertedPayload);
 
         return new MqttApplicationMessageBuilder()
@@ -1187,7 +1184,7 @@ internal sealed class SparkplugMessageGenerator
             Timestamp = (ulong)dateTime.ToUnixTimeMilliseconds()
         };
 
-        var convertedPayload = VersionB.PayloadConverter.ConvertVersionBPayload(payload);
+        var convertedPayload = VersionB.PayloadConverter.ConvertVersionBPayload(payload, SparkplugMessageType.NodeCommand);
         var serialized = PayloadHelper.Serialize(convertedPayload);
 
         return new MqttApplicationMessageBuilder()
@@ -1269,7 +1266,7 @@ internal sealed class SparkplugMessageGenerator
             Timestamp = (ulong)dateTime.ToUnixTimeMilliseconds()
         };
 
-        var convertedPayload = VersionB.PayloadConverter.ConvertVersionBPayload(payload);
+        var convertedPayload = VersionB.PayloadConverter.ConvertVersionBPayload(payload, SparkplugMessageType.DeviceCommand);
         var serialized = PayloadHelper.Serialize(convertedPayload);
 
         return new MqttApplicationMessageBuilder()

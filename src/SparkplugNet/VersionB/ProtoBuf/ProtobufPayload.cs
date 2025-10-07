@@ -23,10 +23,10 @@ namespace SparkplugNet.VersionB.ProtoBuf
         [global::ProtoBuf.ProtoMember(2, Name = @"metrics")]
         public global::System.Collections.Generic.List<Metric> Metrics { get; set; } = new global::System.Collections.Generic.List<Metric>();
 
-        // Begin HEWA: IsRequired = true added for compliance with Ignition
+        // Begin HEWA: IsRequired=true for Ignition compatibility
         [global::ProtoBuf.ProtoMember(3, Name = @"seq", IsRequired = true)]
         public ulong? Seq { get; set; }
-        // End HEWA.
+        // End HEWA
 
         [global::ProtoBuf.ProtoMember(4, Name = @"uuid")]
         public string? Uuid { get; set; }
