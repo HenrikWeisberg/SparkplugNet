@@ -41,44 +41,54 @@ public sealed class SparkplugSerializerTestVersion30
     private readonly SparkplugMessageGenerator messageGenerator = new(SparkplugSpecificationVersion.Version30);
 
     /// <summary>
-    /// Tests the Sparkplug message generator with a node birth message with a version B namespace.
+    /// Test that seq numbers are compatible with Ignition and Eclipse Sparkplug B implementation.
     /// </summary>
     [TestMethod]
-    public void TestNodeBirthMessageNamespaceB()
+    public void TestSparkplugBSeqSerialization()
     {
         var dateTime = DateTimeOffset.UtcNow;
-        var messageNodeBirth = this.messageGenerator.GetSparkplugNodeBirthMessage(SparkplugNamespace.VersionB, "group1", "edge1", this.metricsB, 0, 1, dateTime);
-        var payloadVersionNodeBirth = PayloadHelper.Deserialize<VersionBProtoBufPayload>(messageNodeBirth.Payload);
-        Assert.IsNotNull(payloadVersionNodeBirth);
-        Assert.IsNotNull(payloadVersionNodeBirth.Seq);
-        Assert.IsTrue(payloadVersionNodeBirth.Seq.HasValue);
-        Assert.AreEqual<ulong>(0, payloadVersionNodeBirth.Seq.Value);
 
-        var messageNodeDeath = this.messageGenerator.GetSparkplugNodeDeathMessage(SparkplugNamespace.VersionB, "group1", "edge1", 1);
-        var payloadVersionNodeDeath = PayloadHelper.Deserialize<VersionBProtoBufPayload>(messageNodeDeath.Payload);
-        Assert.IsNotNull(payloadVersionNodeDeath);
-        Assert.IsNull(payloadVersionNodeDeath.Seq);
-        Assert.IsFalse(payloadVersionNodeDeath.Seq.HasValue);
+        // ---------- Node Messages ----------
 
-        var messageDeviceBirth = this.messageGenerator.GetSparkplugDeviceBirthMessage(SparkplugNamespace.VersionB, "group1", "edge1", "device1", this.metricsB, 0, 1, dateTime);
-        var payloadVersionDeviceBirth = PayloadHelper.Deserialize<VersionBProtoBufPayload>(messageDeviceBirth.Payload);
-        Assert.IsNotNull(payloadVersionDeviceBirth);
-        Assert.IsNotNull(payloadVersionDeviceBirth.Seq);
-        Assert.IsTrue(payloadVersionDeviceBirth.Seq.HasValue);
-        Assert.AreEqual<ulong>(0, payloadVersionDeviceBirth.Seq.Value);
+        // NBIRTH
+        var messageNodeBirth = this.messageGenerator.GetSparkplugNodeBirthMessage(
+            SparkplugNamespace.VersionB, "group1", "edge1", this.metricsB, 0, 1, dateTime);
+        var payloadNodeBirth = PayloadHelper.Deserialize<VersionBProtoBufPayload>(messageNodeBirth.Payload);
+        Assert.IsNotNull(payloadNodeBirth);
+        Assert.IsNotNull(payloadNodeBirth.Seq);
+        Assert.AreEqual<ulong>(0, payloadNodeBirth.Seq.Value); // Seq = 0
 
-        var messageDeviceDeath = this.messageGenerator.GetSparkplugDeviceDeathMessage(SparkplugNamespace.VersionB, "group1", "edge1", "device1", 0, 1, dateTime);
-        var payloadVersionDeviceDeath = PayloadHelper.Deserialize<VersionBProtoBufPayload>(messageDeviceBirth.Payload);
-        Assert.IsNotNull(payloadVersionDeviceDeath);
-        Assert.IsNotNull(payloadVersionDeviceDeath.Seq);
-        Assert.IsTrue(payloadVersionDeviceDeath.Seq.HasValue);
-        Assert.AreEqual<ulong>(0, payloadVersionDeviceDeath.Seq.Value);
+        // NDEATH
+        var messageNodeDeath = this.messageGenerator.GetSparkplugNodeDeathMessage(
+            SparkplugNamespace.VersionB, "group1", "edge1", 1);
+        var payloadNodeDeath = PayloadHelper.Deserialize<VersionBProtoBufPayload>(messageNodeDeath.Payload);
+        Assert.IsNotNull(payloadNodeDeath);
+        Assert.IsNull(payloadNodeDeath.Seq); // Seq omitted
 
-        var messageDeviceData = this.messageGenerator.GetSparkplugDeviceDataMessage(SparkplugNamespace.VersionB, "group1", "edge1", "device1", this.metricsB, 0, 1, dateTime);
-        var payloadVersionDeviceData = PayloadHelper.Deserialize<VersionBProtoBufPayload>(messageDeviceData.Payload);
-        Assert.IsNotNull(payloadVersionDeviceData);
-        Assert.IsNotNull(payloadVersionDeviceData.Seq);
-        Assert.IsTrue(payloadVersionDeviceData.Seq.HasValue);
-        Assert.AreEqual<ulong>(0, payloadVersionDeviceData.Seq.Value);
+        // ---------- Device Messages ----------
+
+        // DBIRTH
+        var messageDeviceBirth = this.messageGenerator.GetSparkplugDeviceBirthMessage(
+            SparkplugNamespace.VersionB, "group1", "edge1", "device1", this.metricsB, 0, 1, dateTime);
+        var payloadDeviceBirth = PayloadHelper.Deserialize<VersionBProtoBufPayload>(messageDeviceBirth.Payload);
+        Assert.IsNotNull(payloadDeviceBirth);
+        Assert.IsNotNull(payloadDeviceBirth.Seq);
+        Assert.AreEqual<ulong>(0, payloadDeviceBirth.Seq.Value); // Seq = 0
+
+        // DDEATH
+        var messageDeviceDeath = this.messageGenerator.GetSparkplugDeviceDeathMessage(
+            SparkplugNamespace.VersionB, "group1", "edge1", "device1", 1, 1, dateTime);
+        var payloadDeviceDeath = PayloadHelper.Deserialize<VersionBProtoBufPayload>(messageDeviceDeath.Payload);
+        Assert.IsNotNull(payloadDeviceDeath);
+        Assert.IsNotNull(payloadDeviceDeath.Seq);
+        Assert.AreEqual<ulong>(1, payloadDeviceDeath.Seq.Value); // Seq incremented from previous
+
+        // DDATA
+        var messageDeviceData = this.messageGenerator.GetSparkplugDeviceDataMessage(
+            SparkplugNamespace.VersionB, "group1", "edge1", "device1", this.metricsB, 2, 1, dateTime);
+        var payloadDeviceData = PayloadHelper.Deserialize<VersionBProtoBufPayload>(messageDeviceData.Payload);
+        Assert.IsNotNull(payloadDeviceData);
+        Assert.IsNotNull(payloadDeviceData.Seq);
+        Assert.AreEqual<ulong>(2, payloadDeviceData.Seq.Value); // Seq incremented
     }
 }
