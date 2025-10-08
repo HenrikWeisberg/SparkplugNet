@@ -89,6 +89,7 @@ public abstract partial class SparkplugNodeBase<T> : SparkplugBase<T> where T : 
 
         // Connect, subscribe to incoming messages and send a state message.
         await this.ConnectInternal();
+        await this.SubscribeInternal();
         // Begin HEWA
         if (string.IsNullOrEmpty(this.Options.ScadaHostIdentifier))
         {
