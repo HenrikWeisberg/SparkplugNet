@@ -68,6 +68,16 @@ internal static class PayloadConverter
             Timestamp = protoMetric.Timestamp
         };
 
+        // Begin HEWA:
+        // There is a problem with Cogent DataHub whn storing NBIRTH messages
+        // Datatype is null for template metrics
+        // So if DataType is null and the TemplateValue is not null, we set the DataType to Template
+        if (protoMetric.DataType == null && protoMetric.TemplateValue != null)
+        {
+            protoMetric.DataType = (uint)VersionBProtoBuf.DataType.Template;
+        }
+        //End HEWA
+
         var dataType = ConvertVersionBDataType((VersionBProtoBuf.DataType?)protoMetric.DataType);
 
         switch (dataType)
