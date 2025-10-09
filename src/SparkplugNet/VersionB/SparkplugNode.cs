@@ -121,27 +121,39 @@ public sealed class SparkplugNode : SparkplugNodeBase<Metric>
         // Filter out session number metric.
         var sessionNumberMetric = payload.Metrics.FirstOrDefault(m => m.Name == Constants.SessionNumberMetricName);
         var metricsWithoutSequenceMetric = payload.Metrics.Where(m => m.Name != Constants.SessionNumberMetricName);
-        var filteredMetrics = this.KnownMetricsStorage.FilterMetrics(metricsWithoutSequenceMetric, topic.MessageType).ToList();
-
-        if (sessionNumberMetric is not null)
-        {
-            filteredMetrics.Add(sessionNumberMetric);
-        }
 
         // Handle messages.
         switch (topic.MessageType)
         {
             case SparkplugMessageType.DeviceCommand:
+                // Begin HEWA: Support metrics for device commands
+
                 if (string.IsNullOrWhiteSpace(topic.DeviceIdentifier))
                 {
                     throw new InvalidOperationException($"Topic {topic} is invalid!");
                 }
 
-                await this.FireDeviceCommandReceived(topic.DeviceIdentifier != null ? topic.DeviceIdentifier : string.Empty, filteredMetrics);
+                this.KnownDevices.TryGetValue(topic.DeviceIdentifier ?? string.Empty, out var device);
+                var filteredMetricsDevice = device.FilterMetrics(metricsWithoutSequenceMetric, topic.MessageType).ToList();
+
+                if (sessionNumberMetric is not null)
+                {
+                    filteredMetricsDevice.Add(sessionNumberMetric);
+                }
+
+                await this.FireDeviceCommandReceived(topic.DeviceIdentifier != null ? topic.DeviceIdentifier : string.Empty, filteredMetricsDevice);
+                // End HEWA
                 break;
 
             case SparkplugMessageType.NodeCommand:
                 // Begin HEWA: Compliance with Esclipse Sparkplug 3.0.0. Rebirth command must be handled
+                var filteredMetricsNode = this.KnownMetricsStorage.FilterMetrics(metricsWithoutSequenceMetric, topic.MessageType).ToList();
+
+                if (sessionNumberMetric is not null)
+                {
+                    filteredMetricsNode.Add(sessionNumberMetric);
+                }
+
                 foreach (var metric in payload.Metrics)
                 {
                     if (metric.Name == Constants.NodeControlRebirthName)
@@ -167,7 +179,7 @@ public sealed class SparkplugNode : SparkplugNodeBase<Metric>
                 }
                 // End HEWA
 
-                await this.FireNodeCommandReceived(filteredMetrics);
+                await this.FireNodeCommandReceived(filteredMetricsNode);
                 break;
         }
     }
